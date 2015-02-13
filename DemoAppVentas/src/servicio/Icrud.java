@@ -13,7 +13,7 @@ public interface Icrud<T> {
     
     void delete(T t)throws Exception;
     
-    T find(T t)throws Exception;
+    T find(String t)throws Exception;
     
     List<T>readAll()throws Exception;
     

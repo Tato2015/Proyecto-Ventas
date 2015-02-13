@@ -1,39 +1,50 @@
 package dao;
 
-import entity.EmpleadoDTO;
+import entity.ProductoDTO;
+import java.util.ArrayList;
 import java.util.List;
 import servicio.Icrud;
 
-public class EmpleadoDAO implements Icrud<EmpleadoDTO> {
+public class ProductoDAO implements Icrud<ProductoDTO>{
 
+    private List<ProductoDTO>lista;
+    
     @Override
-    public void create(EmpleadoDTO t) throws Exception {
+    public void create(ProductoDTO t) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void update(EmpleadoDTO t) throws Exception {
+    public void update(ProductoDTO t) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void delete(EmpleadoDTO t) throws Exception {
+    public void delete(ProductoDTO t) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public EmpleadoDTO find(String t) throws Exception {
+    public ProductoDTO find(String t) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public List<EmpleadoDTO> readAll() throws Exception {
+    public List<ProductoDTO> readAll() throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public List<EmpleadoDTO> getAll(Object t) throws Exception {
+    public List<ProductoDTO> getAll(Object t) throws Exception {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+        
+    // no hay metodo override porque no esta dentro de la interfaz
+    public List<ProductoDTO>getAllforLinea(Object t)throws Exception{
+    lista = new ArrayList<>();
+        return lista;
+    }
+    
+    
     
 }

@@ -22,7 +22,7 @@ public class EmpleadoBLL {
         return dao.readAll();
     }
     
-    public void EmpleadosAdicionar(EmpleadoDTO e)throws Exception{
+    public void EmpleadoAdicionar(EmpleadoDTO e)throws Exception{
      dao.create(e);
     }
     
@@ -34,8 +34,8 @@ public class EmpleadoBLL {
     dao.delete(e);
     }
     
-    public void EmpleadoBuscar(EmpleadoDTO x)throws Exception{
-    dao.find(x);
+    public EmpleadoDTO EmpleadoBuscar(String x)throws Exception{
+    return dao.find(x);
     }
     
     
