@@ -71,6 +71,11 @@ public class EmpleadoDTO {
     public void setClave(String clave) {
         this.clave = clave;
     }
+
+    @Override
+    public String toString() {
+        return idempleado + " " + nombre + " " + apellidos ;
+    }
     
     
     

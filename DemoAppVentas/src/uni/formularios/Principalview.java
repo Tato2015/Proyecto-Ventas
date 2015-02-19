@@ -225,9 +225,13 @@ public class Principalview extends javax.swing.JFrame {
  }//GEN-LAST:event_jMenuItem4ActionPerformed
 
  private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
-     VentasView f = new VentasView();
-     desktopPane.add(f);
-     f.show();
+        try {
+            VentasView f = new VentasView();
+            desktopPane.add(f);
+            f.show();
+        } catch (Exception ex) {
+            Logger.getLogger(Principalview.class.getName()).log(Level.SEVERE, null, ex);
+        }
  }//GEN-LAST:event_jMenuItem9ActionPerformed
 
  private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed

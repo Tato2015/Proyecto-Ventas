@@ -1,11 +1,30 @@
 package uni.formularios;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import uni.controller.ClienteBLL;
+import uni.controller.EmpleadoBLL;
+import uni.controller.ProductoBLL;
+import uni.controller.VentaBLL;
+import uni.entity.ClienteDTO;
+import uni.entity.DetalleDTO;
+import uni.entity.EmpleadoDTO;
+import uni.entity.ProductoDTO;
+import uni.entity.VentaDTO;
+
 
 public class VentasView extends javax.swing.JInternalFrame {
 
   
-    public VentasView() {
+    public VentasView() throws Exception {
         initComponents();
+        cargaCombos();
+        
        }
 
     @SuppressWarnings("unchecked")
@@ -362,23 +381,28 @@ public class VentasView extends javax.swing.JInternalFrame {
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void cboproductoItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cboproductoItemStateChanged
-       
+        try {
+            mostrarProducto();
+            calcularMonto();
+        } catch (Exception ex) {
+            Logger.getLogger(VentasView.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_cboproductoItemStateChanged
 
     private void txtcantidadKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtcantidadKeyReleased
-       
+       calcularMonto();
     }//GEN-LAST:event_txtcantidadKeyReleased
 
     private void btnagregardetalleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnagregardetalleActionPerformed
-       
+       agregarDetalle();
     }//GEN-LAST:event_btnagregardetalleActionPerformed
 
     private void btnquitardetalleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnquitardetalleActionPerformed
-       
+    quitarDetalle();   
     }//GEN-LAST:event_btnquitardetalleActionPerformed
 
     private void btnregistraventaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnregistraventaActionPerformed
-       
+    grabarVenta();   
     }//GEN-LAST:event_btnregistraventaActionPerformed
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnagregardetalle;
@@ -420,6 +444,170 @@ public class VentasView extends javax.swing.JInternalFrame {
     private javax.swing.JTextField txtsubtotal;
     private javax.swing.JTextField txttotal;
     // End of variables declaration//GEN-END:variables
+    
+    // instanciar variable de la clase
+    ProductoBLL op = new ProductoBLL();
+    EmpleadoBLL oe = new EmpleadoBLL();
+    ClienteBLL oc = new ClienteBLL();
+    VentaBLL obj = new VentaBLL();
+    int stk;
+    List<DetalleDTO>lista = new ArrayList<>();
+    
+    private void cargaCombos() throws Exception {
+    cbocliente.removeAllItems();
+        for (ClienteDTO item : oc.ListarClientes()) {
+        cbocliente.addItem(item);
+        }
+        
+    cboEmpleado.removeAllItems();
+        for (EmpleadoDTO item : oe.EmpleadosTodo()) {
+        cboEmpleado.addItem(item);
+        }
+        
+    cboproducto.removeAllItems();
+        for (ProductoDTO item : op.ProductosTodo()) {
+            cboproducto.addItem(item);
+        }
+        
+        cbotipodoc.addItem("Factura");
+        cbotipodoc.addItem("Boleta");
+    Date hoy = new Date();
+    lblfecha.setText(hoy+" ");
+    }
+
+    private void mostrarProducto() throws Exception {
+    ProductoDTO p = new ProductoDTO();
+    String cod = cboproducto.getSelectedItem().toString().substring(0,5);
+    ProductoBLL pro = new ProductoBLL();
+    p = pro.ProductoBuscar(cod);
+    stk = p.getStock();
+    txtcodigo.setText(p.getIdproducto());
+    txtprecio.setText(p.getPrecioventa()+" ");
+    txtcantidad.setText("1");
+    txtcantidad.setSelectionStart(0);
+    txtcantidad.grabFocus();        
+    }
+
+    private void calcularMonto() {
+        if(!"".equals(txtcantidad.getText())){
+        int cant =Integer.parseInt(txtcantidad.getText());
+        
+        if(cant < stk){
+        double pre =Double.parseDouble(txtprecio.getText());
+        double monto = pre * cant;
+        txtmonto.setText(monto +"");
+        }else{
+            JOptionPane.showMessageDialog(rootPane,"Solo quedan : "+stk+"unidades en stock");
+            txtcantidad.setSelectionStart(0);
+            txtcantidad.grabFocus();
+        }
+        
+        }else{
+        txtmonto.setText("");
+        }
+        
+    }
+
+    private void agregarDetalle() {
+    DetalleDTO det = new DetalleDTO();
+    det.setIdproducto(txtcodigo.getText());
+    det.setNombre(cboproducto.getSelectedItem().toString().substring(6));
+    det.setPrecio(Double.parseDouble(txtprecio.getText()));
+    det.setCantidad(Integer.parseInt(txtcantidad.getText()));
+    det.setTotal(Double.parseDouble(txtmonto.getText()));
+    adicionarDetalle(det);
+    listarDetalle(lista);
+    TotalVenta();
+    NuevoDetalle();
+    }
+
+    private void adicionarDetalle(DetalleDTO det) {
+    lista.add(det);
+    }
+
+    private void listarDetalle(List<DetalleDTO> lista) {
+    DefaultTableModel model = (DefaultTableModel)tbdetalle.getModel();
+    model.setRowCount(0);
+    for(DetalleDTO d:lista){
+    Object[]rowdata = {d.getIdproducto(),
+        d.getNombre(),
+        d.getPrecio(),
+        d.getCantidad(),
+        d.getTotal()};
+    model.addRow(rowdata);
+    }
+    tbdetalle.setRowSelectionInterval(0,0);        
+    }
+
+    private void TotalVenta() {
+        double subtot = 0;
+        for (DetalleDTO d : lista) {
+            subtot +=d.getTotal();
+        }
+        txtsubtotal.setText(subtot+"");
+        txtigv.setText(subtot*0.18+"");
+        txttotal.setText(subtot+subtot*0.18+"");
+    }
+
+    private void NuevoDetalle() {
+    txtmonto.setText("");
+    txtcantidad.setText("");
+    txtprecio.setText("");
+    txtcodigo.setText("");
+    }
+
+    private void quitarDetalle() {
+    // eliminar fila de la tabla
+        DefaultTableModel model = (DefaultTableModel)tbdetalle.getModel();
+        int fila = tbdetalle.getSelectedRow();
+        if(fila > -1){
+        model.removeRow(fila);
+        lista.remove(fila);
+        listarDetalle(lista);
+        TotalVenta();
+        }else{
+        JOptionPane.showMessageDialog(rootPane,"Detalle no tiene item");
+        }
+        
+        
+    }
+
+    private void grabarVenta() {
+        try {
+        // instanciando objetos
+            VentaDTO ve = new VentaDTO();
+            ve.setIdcliente(cbocliente.getSelectedItem().toString().substring(0,5));
+            ve.setIdempleado(cboEmpleado.getSelectedItem().toString().substring(0,5));
+            ve.setTipodoc(cbotipodoc.getSelectedItem().toString());
+            ve.setNrodoc(txtnrodoc.getText());
+            ve.setTotal(Double.parseDouble(txttotal.getText()));
+            ve.setDetalle(lista);
+            int idfact = obj.registraVenta(ve);
+            txtnro.setText("000"+idfact+"");
+            JOptionPane.showMessageDialog(rootPane,"Venta registrada con exito \n Gracias por su compra");
+            nuevaVenta();                                    
+        } catch (Exception e) {
+        JOptionPane.showMessageDialog(rootPane,e.getMessage());
+        }
+        
+        
+    }
+
+    private void nuevaVenta() {
+    txtnro.setText("");
+        txtmonto.setText("");
+        txtsubtotal.setText("");
+        txtigv.setText("");
+        txttotal.setText("");       
+        
+        DefaultTableModel model = (DefaultTableModel)tbdetalle.getModel();        
+        model.setRowCount(0);   // sirve para limpiar la tabla
+        
+        cbocliente.setSelectedIndex(-1);
+        cboEmpleado.setSelectedIndex(-1);
+        cbotipodoc.setSelectedIndex(0);
+        cbocliente.grabFocus();
+    }
 
     
 }
